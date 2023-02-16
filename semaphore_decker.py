@@ -2,11 +2,10 @@ from multiprocessing import Process
 from multiprocessing import current_process
 from multiprocessing import Value, Array, BoundedSemaphore
 N = 8
-def task(common, tid, semaforo):
-	a = 0
+def task(common, semaforo):
+	tid = current_process().name
 	for i in range(100):
 		print(f'{tid}−{i}: Non−critical Section')
-		a += 1
 		print(f'{tid}−{i}: End of non−critical Section')
 		while not semaforo.acquire(False):
 			print(f'{tid}−{i}: Giving up')
@@ -21,7 +20,7 @@ def main():
 	common = Value('i', 0)
 	semaforo = BoundedSemaphore()
 	for tid in range(N):
-		lp.append(Process(target=task, args=(common, tid, semaforo)))
+		lp.append(Process(target=task, name=tid, args=(common, semaforo)))
 	print (f"Valor inicial del contador {common.value}")
 	for p in lp:
 		p.start()
